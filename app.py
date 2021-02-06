@@ -1,6 +1,22 @@
 # app.py
 from flask import Flask, render_template, request
 
+import time
+from rpi_ws281x import *
+import argparse
+
+# LED strip configuration:
+LED_COUNT      = 300      # Number of LED pixels.
+LED_PIN        = 18      # GPIO pin connected to the pixels (18 uses PWM!).
+#LED_PIN        = 10      # GPIO pin connected to the pixels (10 uses SPI /dev/spidev0.0).
+LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
+LED_DMA        = 10      # DMA channel to use for generating signal (try 10)
+LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
+LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
+LED_CHANNEL    = 0       # set to '1' for GPIOs 13, 19, 41, 45 or 53
+
+strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
+strip.begin()
 
 
 app = Flask(__name__)
@@ -15,16 +31,37 @@ def home(): # route handler function
 def second():
     return render_template('home.html')
 
-@app.route('/blue-fade')
-def bluefade():
+@app.route('/all-off')
+def alloff():
+    print('all off')
+    
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, Color(0, 0, 0))
+        strip.show()
+        time.sleep(50/1000.0)
+        
     return render_template('index.html')
 
-@app.route('/green-fade')
-def greenfade():
+#color
+@app.route('/blue')
+def blue():
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, Color(256, 0, 0))
+        strip.show()
     return render_template('index.html')
 
-@app.route('/red-fade')
-def redfade():
+@app.route('/red')
+def red():
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, Color(0, 256, 0))
+        strip.show()
+    return render_template('index.html')
+
+@app.route('/green')
+def green():
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, Color(0, 0, 256))
+        strip.show()
     return render_template('index.html')
 
 app.run(debug = True)
